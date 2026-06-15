@@ -509,7 +509,7 @@
     <div id="wr_subtype_field" style="display:none">
       <div class="field">
         <label>&#x1F326;&#xFE0F; Weather Condition</label>
-        <select id="wr_subtype">
+        <select id="wr_subtype" onchange="toggleWrOther(this)">
           <option value="">Select condition...</option>
           <option value="Flooding">Flooding</option>
           <option value="Fog">Fog</option>
@@ -520,6 +520,10 @@
           <option value="Wind-related">Wind-related</option>
           <option value="Other">Other</option>
         </select>
+      </div>
+      <div class="field" id="wr_other_field" style="display:none">
+        <label>&#x270F;&#xFE0F; Specify weather condition</label>
+        <input id="wr_other" type="text" placeholder="Describe the weather condition" autocomplete="off">
       </div>
     </div>
 
@@ -894,7 +898,7 @@ function toggleIncType(sel){
   document.getElementById('inc_responders_block').style.display = isWR ? 'none' : 'block';
 
   if(!isOther) document.getElementById('inc_type_other').value = '';
-  if(!isWR) document.getElementById('wr_subtype').value = '';
+  if(!isWR) { document.getElementById('wr_subtype').value = ''; document.getElementById('wr_other_field').style.display='none'; document.getElementById('wr_other').value=''; }
   if(!isDG) { document.getElementById('dg_fields').style.display = 'none'; }
 }
 
@@ -905,7 +909,20 @@ function getIncType(){
   return t;
 }
 
-function fmtDate(d){ if(!d) return ''; var p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+function toggleWrOther(sel){
+  var show = sel.value === 'Other';
+  document.getElementById('wr_other_field').style.display = show ? 'block' : 'none';
+  if(!show) document.getElementById('wr_other').value = '';
+}
+
+function getWrSubtype(){
+  var t = v('wr_subtype');
+  if(!t) return '';
+  if(t === 'Other') return v('wr_other') || 'Other';
+  return t;
+}
+
+
 
 
 function genInitial(){
@@ -948,7 +965,7 @@ function genInitial(){
       '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
       '\uD83D\uDCCD *Location:* ' + (v('location') || '\u2014'),
       getIncType() ? '\uD83D\uDCCB *Type of incident:* ' + getIncType() : null,
-      v('wr_subtype') ? '\uD83C\uDF26\uFE0F *Weather condition:* ' + v('wr_subtype') : null,
+      v('wr_subtype') ? '\uD83C\uDF26\uFE0F *Weather condition:* ' + getWrSubtype() : null,
       '\uD83D\uDD50 *Time of incident:* ' + (v('time_inc') || '\u2014'),
       '\uD83D\uDD50 *Time RRM notified:* ' + (v('time_rrm') || '\u2014'),
       !window._isWR ? '\uD83D\uDE97 *Vehicles:* ' + (v('vehicles') || '\u2014') : null,
