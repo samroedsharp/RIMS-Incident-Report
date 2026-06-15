@@ -431,72 +431,196 @@
   <div class="section-head">Incident details</div>
 
   <div class="field">
-    <label>&#x1F4CD; Location</label>
-    <div class="hint">Route / km marker / GPS coordinates</div>
-    <input id="location" type="text" placeholder="e.g. N2 S6 SB km 14.3 / -33.987, 18.456" autocomplete="off">
+    <label>&#x1F4CB; Type of Incident</label>
+    <select id="inc_type" onchange="toggleIncType(this)">
+      <option value="">Select type...</option>
+      <option value="Crash">Crash</option>
+      <option value="Protests">Protests</option>
+      <option value="Dangerous Goods">Dangerous Goods</option>
+      <option value="Roadworks">Roadworks</option>
+      <option value="Secondary Crash">Secondary Crash</option>
+      <option value="Stationary Vehicle">Stationary Vehicle</option>
+      <option value="Weather Related">Weather Related</option>
+      <option value="Other">Other</option>
+    </select>
+  </div>
+  <div class="field" id="other_field" style="display:none">
+    <label>&#x270F;&#xFE0F; Specify other</label>
+    <input id="inc_type_other" type="text" placeholder="Describe incident type" autocomplete="off">
   </div>
 
-  <div class="row2">
+  <!-- ── ROADWORKS FIELDS (shown only when Roadworks selected) ── -->
+  <div id="roadworks_fields" style="display:none">
     <div class="field">
-      <label>&#x1F550; Time of incident</label>
-      <input id="time_inc" type="time">
+      <label>&#x1F4CD; Location — Start</label>
+      <div class="hint">Route / km marker / GPS coordinates</div>
+      <input id="rw_loc_start" type="text" placeholder="e.g. N2 S6 SB km 14.3" autocomplete="off">
     </div>
     <div class="field">
-      <label>&#x1F550; RRM notified</label>
-      <input id="time_rrm" type="time">
+      <label>&#x1F4CD; Location — End</label>
+      <div class="hint">Route / km marker / GPS coordinates</div>
+      <input id="rw_loc_end" type="text" placeholder="e.g. N2 S6 SB km 18.7" autocomplete="off">
+    </div>
+    <div class="section-head">Road closure period</div>
+    <div class="row2">
+      <div class="field">
+        <label>&#x1F4C5; Start date</label>
+        <input id="rw_date_start" type="date">
+      </div>
+      <div class="field">
+        <label>&#x1F550; Start time</label>
+        <input id="rw_time_start" type="time">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>&#x1F4C5; End date</label>
+        <input id="rw_date_end" type="date">
+      </div>
+      <div class="field">
+        <label>&#x1F550; End time</label>
+        <input id="rw_time_end" type="time">
+      </div>
+    </div>
+    <div class="field">
+      <label>&#x1F6A7; Type of closure</label>
+      <select id="rw_closure_type">
+        <option value="">Select...</option>
+        <option value="Stop &amp; Go in place">Stop &amp; Go in place</option>
+        <option value="Single lane closure">Single lane closure</option>
+        <option value="Full road closure">Full road closure</option>
+        <option value="Rolling closure">Rolling closure</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>&#x1F500; Alternative route / diversion</label>
+      <input id="rw_alt" type="text" placeholder="e.g. Via R300 — signage deployed: Yes" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>&#x1F464; Reported by</label>
+      <input id="rw_reporter" type="text" placeholder="Your name / initials" autocomplete="off">
     </div>
   </div>
 
-  <div class="field">
-    <label>&#x1F697; Vehicles involved</label>
-    <div class="hint">Type, make, reg no — separate with comma</div>
-    <input id="vehicles" type="text" placeholder="e.g. HGV CY123456, LDV unknown" autocomplete="off">
-  </div>
+  <!-- ── STANDARD INCIDENT FIELDS (hidden when Roadworks selected) ── -->
+  <div id="incident_fields">
 
-  <div class="field">
-    <label>&#x26A0;&#xFE0F; Probable cause</label>
-    <input id="cause" type="text" placeholder="e.g. Rear-end collision, tyre blowout" autocomplete="off">
-  </div>
+    <!-- Weather sub-type — only visible when Weather Related selected -->
+    <div id="wr_subtype_field" style="display:none">
+      <div class="field">
+        <label>&#x1F326;&#xFE0F; Weather Condition</label>
+        <select id="wr_subtype">
+          <option value="">Select condition...</option>
+          <option value="Flooding">Flooding</option>
+          <option value="Fog">Fog</option>
+          <option value="Landslide / Rockfall">Landslide / Rockfall</option>
+          <option value="Heavy Rain">Heavy Rain</option>
+          <option value="Snow / Ice / Slush">Snow / Ice / Slush</option>
+          <option value="Fire">Fire</option>
+          <option value="Wind-related">Wind-related</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
 
-  <div class="section-head">Injuries</div>
+    <div class="field">
+      <label>&#x1F4CD; Location</label>
+      <div class="hint">Route / km marker / GPS coordinates</div>
+      <input id="location" type="text" placeholder="e.g. N2 S6 SB km 14.3 / -33.987, 18.456" autocomplete="off">
+    </div>
 
-  <div class="sev-grid" id="sevGrid">
-    <button class="sev-btn" data-val="None" onclick="selSev(this)">&#x2705; None</button>
-    <button class="sev-btn" data-val="Minor" onclick="selSev(this)">&#x1F7E1; Minor</button>
-    <button class="sev-btn" data-val="Serious" onclick="selSev(this)">&#x1F7E0; Serious</button>
-    <button class="sev-btn" data-val="Fatality" onclick="selSev(this)">&#x1F534; Fatality</button>
-  </div>
-  <div class="field" style="margin-top:8px">
-    <input id="inj_count" type="number" min="0" placeholder="Number of persons injured / involved">
-  </div>
+    <div class="row2">
+      <div class="field">
+        <label>&#x1F550; Time of incident</label>
+        <input id="time_inc" type="time">
+      </div>
+      <div class="field">
+        <label>&#x1F550; RRM notified</label>
+        <input id="time_rrm" type="time">
+      </div>
+    </div>
 
-  <div class="section-head">Road status</div>
+    <!-- Hidden for Weather Related -->
+    <div id="inc_vehicles_block">
+      <div class="field">
+        <label>&#x1F697; Vehicles involved</label>
+        <div class="hint">Type, make, reg no — separate with comma</div>
+        <input id="vehicles" type="text" placeholder="e.g. HGV CY123456, LDV unknown" autocomplete="off">
+      </div>
 
-  <div class="field">
-    <label>&#x1F6A7; Closures</label>
-    <input id="closures" type="text" placeholder="e.g. Left lane closed / Both lanes closed" autocomplete="off">
-  </div>
+      <!-- ── DANGEROUS GOODS EXTRA FIELDS ── -->
+      <div id="dg_fields" style="display:none">
+        <div class="section-head">&#x2623;&#xFE0F; Dangerous Goods Details</div>
+        <div class="field">
+          <label>&#x1F69B; Transporter Name</label>
+          <input id="dg_transporter" type="text" placeholder="Company / driver name" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>&#x1F4DE; Transporter Contact Number</label>
+          <input id="dg_contact" type="tel" placeholder="e.g. 082 123 4567" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>&#x1F3F7;&#xFE0F; UN Number(s)</label>
+          <input id="dg_un" type="text" placeholder="e.g. UN1203, UN1090" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>&#x1F9EA; Product Information</label>
+          <input id="dg_product" type="text" placeholder="Product name / description" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>&#x1F3ED; Manufacturer Name</label>
+          <input id="dg_manufacturer" type="text" placeholder="Manufacturer of goods transported" autocomplete="off">
+        </div>
+      </div>
 
-  <div class="field">
-    <label>&#x1F500; Alternative route / diversion</label>
-    <input id="alt" type="text" placeholder="e.g. Via R300 — signage deployed: Yes" autocomplete="off">
-  </div>
+      <div class="field">
+        <label>&#x26A0;&#xFE0F; Probable cause</label>
+        <input id="cause" type="text" placeholder="e.g. Rear-end collision, tyre blowout" autocomplete="off">
+      </div>
 
-  <div class="section-head">Response</div>
+      <div class="section-head">Injuries</div>
+      <div class="sev-grid" id="sevGrid">
+        <button class="sev-btn" data-val="None" onclick="selSev(this)">&#x2705; None</button>
+        <button class="sev-btn" data-val="Minor" onclick="selSev(this)">&#x1F7E1; Minor</button>
+        <button class="sev-btn" data-val="Serious" onclick="selSev(this)">&#x1F7E0; Serious</button>
+        <button class="sev-btn" data-val="Fatality" onclick="selSev(this)">&#x1F534; Fatality</button>
+      </div>
+      <div class="field" style="margin-top:8px">
+        <input id="inj_count" type="number" min="0" placeholder="Number of persons injured / involved">
+      </div>
+    </div>
 
-  <div class="field">
-    <label>&#x1F692; First responders on scene</label>
-    <input id="responders" type="text" placeholder="e.g. SAPS 09:14, EMS 09:20, Fire 09:28" autocomplete="off">
-  </div>
+    <div class="section-head">Road status</div>
 
-  <div class="field">
-    <label>&#x1F4CB; CCC notified</label>
-    <input id="sanral" type="time">
-  </div>
+    <div class="field">
+      <label>&#x1F6A7; Closures</label>
+      <input id="closures" type="text" placeholder="e.g. Left lane closed / Both lanes closed" autocomplete="off">
+    </div>
 
-  <div class="field">
-    <label>&#x1F464; Reported by</label>
-    <input id="reporter" type="text" placeholder="Your name / initials" autocomplete="off">
+    <div class="field">
+      <label>&#x1F500; Alternative route / diversion</label>
+      <input id="alt" type="text" placeholder="e.g. Via R300 — signage deployed: Yes" autocomplete="off">
+    </div>
+
+    <div class="section-head">Response</div>
+
+    <!-- Hidden for Weather Related -->
+    <div id="inc_responders_block">
+      <div class="field">
+        <label>&#x1F692; First responders on scene</label>
+        <input id="responders" type="text" placeholder="e.g. SAPS 09:14, EMS 09:20, Fire 09:28" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>&#x1F4CB; CCC notified</label>
+      <input id="sanral" type="time">
+    </div>
+
+    <div class="field">
+      <label>&#x1F464; Reported by</label>
+      <input id="reporter" type="text" placeholder="Your name / initials" autocomplete="off">
+    </div>
   </div>
 
   <button class="btn-primary" onclick="genInitial()">&#x1F4F2; Generate WhatsApp Message</button>
@@ -508,6 +632,33 @@
   <div class="info-card">
     <strong>How to use</strong>
     Add an update each time the status changes. Generate the message, copy it, and paste into WhatsApp. Updates are numbered automatically.
+  </div>
+
+  <!-- DG update fields — only visible when Dangerous Goods selected -->
+  <div id="dg_update_fields" style="display:none">
+    <div class="section-head">&#x2623;&#xFE0F; Dangerous Goods — Update</div>
+    <div class="field">
+      <label>&#x1F4CB; Type of Incident</label>
+      <select id="dg_inc_type">
+        <option value="">Select...</option>
+        <option value="Spill">Spill</option>
+        <option value="Fire">Fire</option>
+        <option value="Leak">Leak</option>
+        <option value="Liquid">Liquid</option>
+        <option value="Solid">Solid</option>
+        <option value="Gas">Gas</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>&#x1F333; Environmental Impact</label>
+      <select id="dg_env_impact">
+        <option value="">Select...</option>
+        <option value="Water">Water</option>
+        <option value="Soil">Soil</option>
+        <option value="Air">Air</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
   </div>
 
   <div id="updatesList"></div>
@@ -572,15 +723,55 @@
 
 <!-- ══ TAB 3: CONTACTS ══════════════════════════════════════════════════════ -->
 <div id="tab3" class="tab-content">
-  <div class="section-head">Emergency services</div>
+
+  <div class="section-head">CCC — District Control Centres</div>
   <div class="contacts-card">
     <div class="contact-row">
       <div>
-        <div class="contact-name">SANRAL Control Room</div>
-        <div class="contact-role">24/7 — toll free</div>
+        <div class="contact-name">Cape Town Metro</div>
+        <div class="contact-role">District CCC</div>
       </div>
-      <a class="call-btn" href="tel:0800080808">0800 080 808</a>
+      <a class="call-btn" href="tel:0214807700">021 480 7700</a>
     </div>
+    <div class="contact-row">
+      <div>
+        <div class="contact-name">Cape Winelands</div>
+        <div class="contact-role">District CCC</div>
+      </div>
+      <a class="call-btn" href="tel:0233466000">023 346 6000</a>
+    </div>
+    <div class="contact-row">
+      <div>
+        <div class="contact-name">Central Karoo</div>
+        <div class="contact-role">District CCC</div>
+      </div>
+      <a class="call-btn" href="tel:0234498000">023 449 8000</a>
+    </div>
+    <div class="contact-row">
+      <div>
+        <div class="contact-name">Garden Route</div>
+        <div class="contact-role">District CCC</div>
+      </div>
+      <a class="call-btn" href="tel:0448055071">044 805 5071</a>
+    </div>
+    <div class="contact-row">
+      <div>
+        <div class="contact-name">Overberg</div>
+        <div class="contact-role">District CCC</div>
+      </div>
+      <a class="call-btn" href="tel:0282129111">028 212 9111</a>
+    </div>
+    <div class="contact-row">
+      <div>
+        <div class="contact-name">West Coast</div>
+        <div class="contact-role">District CCC</div>
+      </div>
+      <a class="call-btn" href="tel:0224338700">022 433 8700</a>
+    </div>
+  </div>
+
+  <div class="section-head">Emergency services</div>
+  <div class="contacts-card">
     <div class="contact-row">
       <div>
         <div class="contact-name">SAPS Emergency</div>
@@ -594,13 +785,6 @@
         <div class="contact-role">Medical emergency</div>
       </div>
       <a class="call-btn" href="tel:10177">10177</a>
-    </div>
-    <div class="contact-row">
-      <div>
-        <div class="contact-name">Fire &amp; Rescue (CoCT)</div>
-        <div class="contact-role">City of Cape Town</div>
-      </div>
-      <a class="call-btn" href="tel:0214807700">021 480 7700</a>
     </div>
     <div class="contact-row">
       <div>
@@ -691,30 +875,100 @@ function calcDur(){
   return h > 0 ? h + 'h ' + m + 'min' : m + 'min';
 }
 
-/* ── GENERATE: INITIAL REPORT ──────────────────────────────────────────── */
+/* ── TYPE OF INCIDENT ────────────────────────────────────────────────────── */
+function toggleIncType(sel){
+  var isRW    = sel.value === 'Roadworks';
+  var isDG    = sel.value === 'Dangerous Goods';
+  var isWR    = sel.value === 'Weather Related';
+  var isOther = sel.value === 'Other';
+  window._isDG = isDG;
+  window._isWR = isWR;
+
+  document.getElementById('roadworks_fields').style.display    = isRW ? 'block' : 'none';
+  document.getElementById('incident_fields').style.display     = isRW ? 'none'  : 'block';
+  document.getElementById('other_field').style.display         = isOther ? 'block' : 'none';
+  document.getElementById('dg_fields').style.display           = isDG ? 'block' : 'none';
+  document.getElementById('dg_update_fields').style.display    = isDG ? 'block' : 'none';
+  document.getElementById('wr_subtype_field').style.display    = isWR ? 'block' : 'none';
+  document.getElementById('inc_vehicles_block').style.display  = isWR ? 'none'  : 'block';
+  document.getElementById('inc_responders_block').style.display = isWR ? 'none' : 'block';
+
+  if(!isOther) document.getElementById('inc_type_other').value = '';
+  if(!isWR) document.getElementById('wr_subtype').value = '';
+  if(!isDG) { document.getElementById('dg_fields').style.display = 'none'; }
+}
+
+function getIncType(){
+  var t = v('inc_type');
+  if(!t) return '';
+  if(t === 'Other') return v('inc_type_other') || 'Other';
+  return t;
+}
+
+function fmtDate(d){ if(!d) return ''; var p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+
+
 function genInitial(){
-  var inj = sevVal || '—';
-  var cnt = v('inj_count');
-  if(cnt) inj += ' (' + cnt + ' person' + (parseInt(cnt)!==1?'s':'') + ')';
+  var isRW = v('inc_type') === 'Roadworks';
+  var msg;
 
-  var msg = buildMsg([
-    '\uD83D\uDEA8 *INCIDENT REPORT \u2014 ' + window._incNo + '*',
-    '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
-    '\uD83D\uDCCD *Location:* ' + (v('location') || '\u2014'),
-    '\uD83D\uDD50 *Time of incident:* ' + (v('time_inc') || '\u2014'),
-    '\uD83D\uDD50 *Time RRM notified:* ' + (v('time_rrm') || '\u2014'),
-    '\uD83D\uDE97 *Vehicles:* ' + (v('vehicles') || '\u2014'),
-    v('cause') ? '\u26A0\uFE0F *Probable cause:* ' + v('cause') : null,
-    '\uD83D\uDE91 *Injuries:* ' + inj,
-    '\uD83D\uDEA7 *Road closures:* ' + (v('closures') || '\u2014'),
-    v('alt') ? '\uD83D\uDD00 *Alternative route:* ' + v('alt') : null,
-    v('responders') ? '\uD83D\uDE92 *First responders:* ' + v('responders') : null,
-    v('sanral') ? '\uD83D\uDCDE *CCC notified:* ' + v('sanral') : null,
-    '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
-    '\uD83D\uDCCB Reported by: ' + (v('reporter') || '\u2014'),
-  ]);
+  if(isRW){
+    var rwDur = '';
+    if(v('rw_date_start') && v('rw_date_end')){
+      var s = new Date(v('rw_date_start')+'T'+(v('rw_time_start')||'00:00'));
+      var e = new Date(v('rw_date_end')+'T'+(v('rw_time_end')||'00:00'));
+      var diffMs = e - s;
+      if(diffMs > 0){
+        var diffH = Math.floor(diffMs/3600000);
+        var diffD = Math.floor(diffH/24);
+        var remH  = diffH % 24;
+        rwDur = diffD > 0 ? diffD+'d '+remH+'h' : diffH+'h';
+      }
+    }
+    msg = buildMsg([
+      '\uD83D\uDEA7 *ROADWORKS NOTICE \u2014 ' + window._incNo + '*',
+      '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
+      v('rw_loc_start') ? '\uD83D\uDCCD *Location \u2014 Start:* ' + v('rw_loc_start') : null,
+      v('rw_loc_end')   ? '\uD83D\uDCCD *Location \u2014 End:* '   + v('rw_loc_end')   : null,
+      '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
+      (v('rw_date_start')||v('rw_time_start')) ? '\uD83D\uDCC5 *Closure starts:* ' + (fmtDate(v('rw_date_start'))||'') + (v('rw_time_start') ? ' \u2014 ' + v('rw_time_start') : '') : null,
+      (v('rw_date_end')||v('rw_time_end'))     ? '\uD83D\uDCC5 *Closure ends:* '   + (fmtDate(v('rw_date_end'))||'')   + (v('rw_time_end')   ? ' \u2014 ' + v('rw_time_end')   : '') : null,
+      rwDur ? '\u23F1\uFE0F *Total duration:* ' + rwDur : null,
+      v('rw_closure_type') ? '\uD83D\uDEA7 *Type of closure:* ' + v('rw_closure_type') : null,
+      v('rw_alt') ? '\uD83D\uDD00 *Alternative route:* ' + v('rw_alt') : null,
+      '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
+      '\uD83D\uDCCB Reported by: ' + (v('rw_reporter') || '\u2014'),
+    ]);
+  } else {
+    var inj = sevVal || '\u2014';
+    var cnt = v('inj_count');
+    if(cnt) inj += ' (' + cnt + ' person' + (parseInt(cnt)!==1?'s':'') + ')';
+    msg = buildMsg([
+      '\uD83D\uDEA8 *INCIDENT REPORT \u2014 ' + window._incNo + '*',
+      '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
+      '\uD83D\uDCCD *Location:* ' + (v('location') || '\u2014'),
+      getIncType() ? '\uD83D\uDCCB *Type of incident:* ' + getIncType() : null,
+      v('wr_subtype') ? '\uD83C\uDF26\uFE0F *Weather condition:* ' + v('wr_subtype') : null,
+      '\uD83D\uDD50 *Time of incident:* ' + (v('time_inc') || '\u2014'),
+      '\uD83D\uDD50 *Time RRM notified:* ' + (v('time_rrm') || '\u2014'),
+      !window._isWR ? '\uD83D\uDE97 *Vehicles:* ' + (v('vehicles') || '\u2014') : null,
+      !window._isWR && v('dg_transporter') ? '\uD83D\uDE9B *Transporter:* ' + v('dg_transporter') : null,
+      !window._isWR && v('dg_contact') ? '\uD83D\uDCDE *Transporter contact:* ' + v('dg_contact') : null,
+      !window._isWR && v('dg_un') ? '\u2623\uFE0F *UN Number(s):* ' + v('dg_un') : null,
+      !window._isWR && v('dg_product') ? '\uD83E\uDDEA *Product:* ' + v('dg_product') : null,
+      !window._isWR && v('dg_manufacturer') ? '\uD83C\uDFED *Manufacturer:* ' + v('dg_manufacturer') : null,
+      !window._isWR && v('cause') ? '\u26A0\uFE0F *Probable cause:* ' + v('cause') : null,
+      !window._isWR ? '\uD83D\uDE91 *Injuries:* ' + inj : null,
+      '\uD83D\uDEA7 *Road closures:* ' + (v('closures') || '\u2014'),
+      v('alt') ? '\uD83D\uDD00 *Alternative route:* ' + v('alt') : null,
+      (!window._isWR && v('responders')) ? '\uD83D\uDE92 *First responders:* ' + v('responders') : null,
+      v('sanral') ? '\uD83D\uDCDE *CCC notified:* ' + v('sanral') : null,
+      '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
+      '\uD83D\uDCCB Reported by: ' + (v('reporter') || '\u2014'),
+    ]);
+  }
 
-  showOutput('out0', msg, false);
+  showOutput('out0', msg, isRW);
 }
 
 /* ── UPDATES ─────────────────────────────────────────────────────────────── */
@@ -760,7 +1014,8 @@ function genUpdate(){
     v('location') ? '\uD83D\uDCCD *Location:* ' + v('location') : null,
     u.time ? '\uD83D\uDD50 *Time:* ' + u.time : null,
     u.status ? '\uD83D\uDCCC *Status:* ' + u.status : null,
-
+    (window._isDG && v('dg_inc_type'))   ? '\u2623\uFE0F *DG incident type:* ' + v('dg_inc_type')   : null,
+    (window._isDG && v('dg_env_impact')) ? '\uD83C\uDF33 *Environmental impact:* ' + v('dg_env_impact') : null,
     '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
     '\uD83D\uDCCB Updated by: ' + (v('reporter') || '\u2014'),
   ]);
