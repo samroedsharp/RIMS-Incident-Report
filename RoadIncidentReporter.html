@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#C0392B">
+<title>RIMS Incident Report</title>
+<style>
+  :root {
+    --red:       #C0392B;
+    --red-dark:  #922B21;
+    --red-light: #FADBD8;
+    --red-text:  #7B241C;
+    --orange:    #E87722;
+    --green:     #1E8449;
+    --green-light:#D5F5E3;
+    --green-text: #145A32;
+    --amber:     #D68910;
+    --amber-light:#FEF9E7;
+    --amber-text: #7D6608;
+    --bg:        #F4F4F4;
+    --surface:   #FFFFFF;
+    --border:    #DCDCDC;
+    --text:      #1A1A1A;
+    --muted:     #6B6B6B;
+    --hint:      #9B9B9B;
+    --radius:    10px;
+    --radius-lg: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.5;
+    overscroll-behavior: none;
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: var(--red);
+    color: #fff;
+    padding: 14px 16px 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .app-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .app-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+  .inc-badge {
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 3px 10px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── TAB BAR ── */
+  .tab-bar {
+    display: flex;
+    background: var(--red-dark);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 9px 2px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    letter-spacing: 0.03em;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn.active {
+    color: #fff;
+    border-bottom-color: #fff;
+  }
+
+  /* ── CONTENT ── */
+  .tab-content { display: none; padding: 14px 14px 80px; }
+  .tab-content.active { display: block; }
+
+  /* ── FORM ELEMENTS ── */
+  .section-head {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 18px 0 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-head:first-child { margin-top: 4px; }
+
+  .field { margin-bottom: 11px; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .field .hint {
+    font-size: 11px;
+    color: var(--hint);
+    margin-bottom: 4px;
+  }
+  .field input[type="text"],
+  .field input[type="time"],
+  .field input[type="number"],
+  .field input[type="tel"],
+  .field textarea,
+  .field select {
+    width: 100%;
+    padding: 11px 13px;
+    font-size: 16px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus {
+    outline: none;
+    border-color: var(--red);
+  }
+  .field textarea { resize: vertical; min-height: 64px; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* ── INJURY SELECTOR ── */
+  .sev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+  .sev-btn {
+    padding: 11px 6px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.12s;
+  }
+  .sev-btn:active { opacity: 0.8; transform: scale(0.97); }
+  .sev-btn.sel-none     { background: var(--green-light); border-color: var(--green); color: var(--green-text); }
+  .sev-btn.sel-minor    { background: var(--amber-light); border-color: var(--amber); color: var(--amber-text); }
+  .sev-btn.sel-serious  { background: #FDEBD0; border-color: var(--orange); color: #784212; }
+  .sev-btn.sel-fatal    { background: var(--red-light); border-color: var(--red); color: var(--red-text); }
+
+  /* ── ROAD STATUS ── */
+  .cl-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 4px; }
+  .cl-btn {
+    padding: 10px 4px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    text-align: center;
+  }
+  .cl-btn.sel { background: var(--green-light); border-color: var(--green); color: var(--green-text); }
+
+  /* ── BUTTONS ── */
+  .btn-primary {
+    width: 100%;
+    margin-top: 14px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 700;
+    background: var(--red);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: #fff;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary:active { opacity: 0.85; transform: scale(0.99); }
+  .btn-primary.green { background: var(--green); }
+
+  .btn-copy {
+    width: 100%;
+    margin-top: 10px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    background: var(--green);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: #fff;
+    cursor: pointer;
+  }
+  .btn-copy:active { opacity: 0.8; }
+
+  .btn-add-update {
+    width: 100%;
+    padding: 13px;
+    font-size: 15px;
+    font-weight: 600;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-lg);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  .btn-add-update:active { background: var(--bg); }
+
+  /* ── MESSAGE OUTPUT ── */
+  .msg-box {
+    background: #1B2631;
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.75;
+    color: #ECF0F1;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: "SF Mono", "Fira Code", "Courier New", monospace;
+    border-left: 4px solid var(--red);
+  }
+  .msg-box.green-border { border-left-color: var(--green); }
+
+  /* ── UPDATE CARDS ── */
+  .update-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .update-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .update-no {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--red);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .del-btn {
+    background: var(--red-light);
+    border: none;
+    color: var(--red);
+    font-size: 18px;
+    font-weight: 700;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .update-time {
+    width: 100%;
+    padding: 9px 11px;
+    font-size: 15px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-family: inherit;
+    margin-bottom: 7px;
+  }
+  .update-status {
+    width: 100%;
+    padding: 9px 11px;
+    font-size: 15px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-family: inherit;
+    margin-bottom: 7px;
+  }
+  .update-action {
+    width: 100%;
+    padding: 9px 11px;
+    font-size: 15px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-family: inherit;
+    resize: vertical;
+    min-height: 56px;
+  }
+
+  /* ── CONTACTS ── */
+  .contacts-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .contact-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .contact-row:last-child { border-bottom: none; }
+  .contact-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .contact-role { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .call-btn {
+    display: inline-block;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--green);
+    border-radius: 20px;
+    color: #fff;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .call-btn-outline {
+    display: inline-block;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    background: transparent;
+    border: 1.5px solid var(--red);
+    border-radius: 20px;
+    color: var(--red);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .btn-add-contact {
+    width: 100%;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-lg);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+
+  .empty-msg {
+    text-align: center;
+    color: var(--hint);
+    font-size: 13px;
+    padding: 20px 0;
+    font-style: italic;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1A1A1A;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.25s;
+    z-index: 9999;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── INSTRUCTIONS ── */
+  .info-card {
+    background: #EBF5FB;
+    border-left: 4px solid #2E86C1;
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #1A5276;
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .info-card strong { display: block; font-size: 13px; margin-bottom: 3px; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-header-top">
+    <div class="app-title">&#x1F6A8; RIMS Incident Report</div>
+    <div class="inc-badge" id="incBadge">Generating...</div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="showTab(0)">Report</button>
+    <button class="tab-btn" onclick="showTab(1)">Updates</button>
+    <button class="tab-btn" onclick="showTab(2)">Closure</button>
+    <button class="tab-btn" onclick="showTab(3)">Contacts</button>
+  </div>
+</div>
+
+<!-- ══ TAB 0: INITIAL REPORT ══════════════════════════════════════════════ -->
+<div id="tab0" class="tab-content active">
+
+  <div class="section-head">Incident details</div>
+
+  <div class="field">
+    <label>&#x1F4CD; Location</label>
+    <div class="hint">Route / km marker / GPS coordinates</div>
+    <input id="location" type="text" placeholder="e.g. N2 S6 SB km 14.3 / -33.987, 18.456" autocomplete="off">
+  </div>
+
+  <div class="row2">
+    <div class="field">
+      <label>&#x1F550; Time of incident</label>
+      <input id="time_inc" type="time">
+    </div>
+    <div class="field">
+      <label>&#x1F550; RRM notified</label>
+      <input id="time_rrm" type="time">
+    </div>
+  </div>
+
+  <div class="field">
+    <label>&#x1F697; Vehicles involved</label>
+    <div class="hint">Type, make, reg no — separate with comma</div>
+    <input id="vehicles" type="text" placeholder="e.g. HGV CY123456, LDV unknown" autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label>&#x26A0;&#xFE0F; Probable cause</label>
+    <input id="cause" type="text" placeholder="e.g. Rear-end collision, tyre blowout" autocomplete="off">
+  </div>
+
+  <div class="section-head">Injuries</div>
+
+  <div class="sev-grid" id="sevGrid">
+    <button class="sev-btn" data-val="None" onclick="selSev(this)">&#x2705; None</button>
+    <button class="sev-btn" data-val="Minor" onclick="selSev(this)">&#x1F7E1; Minor</button>
+    <button class="sev-btn" data-val="Serious" onclick="selSev(this)">&#x1F7E0; Serious</button>
+    <button class="sev-btn" data-val="Fatality" onclick="selSev(this)">&#x1F534; Fatality</button>
+  </div>
+  <div class="field" style="margin-top:8px">
+    <input id="inj_count" type="number" min="0" placeholder="Number of persons injured / involved">
+  </div>
+
+  <div class="section-head">Road status</div>
+
+  <div class="field">
+    <label>&#x1F6A7; Closures</label>
+    <input id="closures" type="text" placeholder="e.g. Left lane closed / Both lanes closed" autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label>&#x1F500; Alternative route / diversion</label>
+    <input id="alt" type="text" placeholder="e.g. Via R300 — signage deployed: Yes" autocomplete="off">
+  </div>
+
+  <div class="section-head">Response</div>
+
+  <div class="field">
+    <label>&#x1F692; First responders on scene</label>
+    <input id="responders" type="text" placeholder="e.g. SAPS 09:14, EMS 09:20, Fire 09:28" autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label>&#x1F4CB; CCC notified</label>
+    <input id="sanral" type="time">
+  </div>
+
+  <div class="field">
+    <label>&#x1F464; Reported by</label>
+    <input id="reporter" type="text" placeholder="Your name / initials" autocomplete="off">
+  </div>
+
+  <button class="btn-primary" onclick="genInitial()">&#x1F4F2; Generate WhatsApp Message</button>
+  <div id="out0"></div>
+</div>
+
+<!-- ══ TAB 1: UPDATES ══════════════════════════════════════════════════════ -->
+<div id="tab1" class="tab-content">
+  <div class="info-card">
+    <strong>How to use</strong>
+    Add an update each time the status changes. Generate the message, copy it, and paste into WhatsApp. Updates are numbered automatically.
+  </div>
+
+  <div id="updatesList"></div>
+
+  <button class="btn-add-update" onclick="addUpdate()">+ Add Update</button>
+  <button class="btn-primary" onclick="genUpdate()">&#x1F4F2; Generate Update Message</button>
+  <div id="out1"></div>
+</div>
+
+<!-- ══ TAB 2: CLOSURE ══════════════════════════════════════════════════════ -->
+<div id="tab2" class="tab-content">
+
+  <div class="section-head">Closure details</div>
+
+  <div class="field">
+    <label>&#x1F550; Time scene cleared</label>
+    <input id="cl_time" type="time">
+  </div>
+
+  <div class="field">
+    <label>&#x1F6A7; Road / lane status</label>
+    <div class="cl-grid" id="clGrid">
+      <button class="cl-btn" data-val="All lanes open" onclick="selCl(this)">All open</button>
+      <button class="cl-btn" data-val="Partially open" onclick="selCl(this)">Partial</button>
+      <button class="cl-btn" data-val="Still closed" onclick="selCl(this)">Still closed</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>&#x1F694; SAPS case number</label>
+    <input id="cl_case" type="text" placeholder="If applicable" autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label>&#x1F3E5; Persons transported to hospital</label>
+    <input id="cl_hosp" type="text" placeholder="e.g. 2 persons — Groote Schuur Hospital" autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label>&#x1F4F8; Photos taken</label>
+    <select id="cl_photos">
+      <option value="">Select...</option>
+      <option value="Yes — saved to drive">Yes — saved to drive</option>
+      <option value="Yes — on device">Yes — on device</option>
+      <option value="No">No</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>&#x1F4DD; Notes / follow-up required</label>
+    <textarea id="cl_notes" placeholder="Debris still on road, pothole, oil spill, damage to barrier, etc."></textarea>
+  </div>
+
+  <div class="field">
+    <label>&#x270D;&#xFE0F; Closed by</label>
+    <input id="cl_by" type="text" placeholder="Your name" autocomplete="off">
+  </div>
+
+  <button class="btn-primary green" onclick="genClosure()">&#x1F4F2; Generate Closure Message</button>
+  <div id="out2"></div>
+</div>
+
+<!-- ══ TAB 3: CONTACTS ══════════════════════════════════════════════════════ -->
+<div id="tab3" class="tab-content">
+  <div class="section-head">Emergency services</div>
+  <div class="contacts-card">
+    <div class="contact-row">
+      <div>
+        <div class="contact-name">SANRAL Control Room</div>
+        <div class="contact-role">24/7 — toll free</div>
+      </div>
+      <a class="call-btn" href="tel:0800080808">0800 080 808</a>
+    </div>
+    <div class="contact-row">
+      <div>
+        <div class="contact-name">SAPS Emergency</div>
+        <div class="contact-role">Police</div>
+      </div>
+      <a class="call-btn" href="tel:10111">10111</a>
+    </div>
+    <div class="contact-row">
+      <div>
+        <div class="contact-name">Ambulance / EMS</div>
+        <div class="contact-role">Medical emergency</div>
+      </div>
+      <a class="call-btn" href="tel:10177">10177</a>
+    </div>
+    <div class="contact-row">
+      <div>
+        <div class="contact-name">Fire &amp; Rescue (CoCT)</div>
+        <div class="contact-role">City of Cape Town</div>
+      </div>
+      <a class="call-btn" href="tel:0214807700">021 480 7700</a>
+    </div>
+    <div class="contact-row">
+      <div>
+        <div class="contact-name">National Emergency (all services)</div>
+        <div class="contact-role">Works on any network</div>
+      </div>
+      <a class="call-btn" href="tel:112">112</a>
+    </div>
+  </div>
+
+  <div class="section-head">Contract contacts</div>
+  <div id="customContacts"></div>
+  <button class="btn-add-contact" onclick="addContact()">+ Add Contact (supervisor, tow-truck, etc.)</button>
+
+  <div class="info-card" style="margin-top:8px">
+    <strong>Tip — save to home screen</strong>
+    Open this file in Chrome or Safari &rarr; tap the share icon &rarr; "Add to Home Screen". It will open like an app — no internet needed.
+  </div>
+</div>
+
+<!-- ══ TOAST ══════════════════════════════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── STATE ─────────────────────────────────────────────────────────────── */
+var sevVal = '';
+var clVal  = '';
+var updates = [];
+var customContacts = [];
+
+/* ── INIT ───────────────────────────────────────────────────────────────── */
+(function(){
+  var d = new Date();
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+  var now = pad(d.getHours()) + ':' + pad(d.getMinutes());
+  document.getElementById('time_inc').value = now;
+  document.getElementById('time_rrm').value = now;
+
+  var yr = d.getFullYear();
+  var mo = pad(d.getMonth()+1);
+  var dy = pad(d.getDate());
+  var rnd = pad(Math.floor(Math.random()*99)+1);
+  var incNo = 'INC-' + yr + mo + dy + '-' + rnd;
+  document.getElementById('incBadge').textContent = incNo;
+  window._incNo = incNo;
+
+  renderUpdates();
+  renderCustomContacts();
+})();
+
+/* ── TABS ────────────────────────────────────────────────────────────────── */
+function showTab(n){
+  document.querySelectorAll('.tab-content').forEach(function(el,i){ el.classList.toggle('active', i===n); });
+  document.querySelectorAll('.tab-btn').forEach(function(el,i){ el.classList.toggle('active', i===n); });
+  window.scrollTo(0,0);
+}
+
+/* ── INJURY SELECTOR ─────────────────────────────────────────────────────── */
+function selSev(btn){
+  sevVal = btn.dataset.val;
+  var map = {None:'sel-none', Minor:'sel-minor', Serious:'sel-serious', Fatality:'sel-fatal'};
+  document.querySelectorAll('#sevGrid .sev-btn').forEach(function(b){ b.className='sev-btn'; });
+  btn.classList.add(map[sevVal] || '');
+}
+
+/* ── CLOSURE SELECTOR ───────────────────────────────────────────────────── */
+function selCl(btn){
+  clVal = btn.dataset.val;
+  document.querySelectorAll('#clGrid .cl-btn').forEach(function(b){ b.classList.remove('sel'); });
+  btn.classList.add('sel');
+}
+
+/* ── HELPERS ─────────────────────────────────────────────────────────────── */
+function v(id){ var el=document.getElementById(id); return el ? el.value.trim() : ''; }
+function pad(n){ return String(n).padStart(2,'0'); }
+
+function buildMsg(lines){
+  return lines.filter(function(l){ return l !== null && l !== ''; }).join('\n');
+}
+
+function calcDur(){
+  var t1 = v('time_inc'), t2 = v('cl_time');
+  if(!t1 || !t2) return '';
+  var p1=t1.split(':'), p2=t2.split(':');
+  var mins = (parseInt(p2[0])*60+parseInt(p2[1])) - (parseInt(p1[0])*60+parseInt(p1[1]));
+  if(mins < 0) mins += 1440;
+  var h = Math.floor(mins/60), m = mins%60;
+  return h > 0 ? h + 'h ' + m + 'min' : m + 'min';
+}
+
+/* ── GENERATE: INITIAL REPORT ──────────────────────────────────────────── */
+function genInitial(){
+  var inj = sevVal || '—';
+  var cnt = v('inj_count');
+  if(cnt) inj += ' (' + cnt + ' person' + (parseInt(cnt)!==1?'s':'') + ')';
+
+  var msg = buildMsg([
+    '\uD83D\uDEA8 *INCIDENT REPORT \u2014 ' + window._incNo + '*',
+    '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
+    '\uD83D\uDCCD *Location:* ' + (v('location') || '\u2014'),
+    '\uD83D\uDD50 *Time of incident:* ' + (v('time_inc') || '\u2014'),
+    '\uD83D\uDD50 *Time RRM notified:* ' + (v('time_rrm') || '\u2014'),
+    '\uD83D\uDE97 *Vehicles:* ' + (v('vehicles') || '\u2014'),
+    v('cause') ? '\u26A0\uFE0F *Probable cause:* ' + v('cause') : null,
+    '\uD83D\uDE91 *Injuries:* ' + inj,
+    '\uD83D\uDEA7 *Road closures:* ' + (v('closures') || '\u2014'),
+    v('alt') ? '\uD83D\uDD00 *Alternative route:* ' + v('alt') : null,
+    v('responders') ? '\uD83D\uDE92 *First responders:* ' + v('responders') : null,
+    v('sanral') ? '\uD83D\uDCDE *CCC notified:* ' + v('sanral') : null,
+    '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
+    '\uD83D\uDCCB Reported by: ' + (v('reporter') || '\u2014'),
+  ]);
+
+  showOutput('out0', msg, false);
+}
+
+/* ── UPDATES ─────────────────────────────────────────────────────────────── */
+function addUpdate(){
+  var d = new Date();
+  updates.push({ time: pad(d.getHours())+':'+pad(d.getMinutes()), status:'' });
+  renderUpdates();
+  // scroll to new card
+  setTimeout(function(){ var list=document.getElementById('updatesList'); if(list.lastChild) list.lastChild.scrollIntoView({behavior:'smooth'}); }, 100);
+}
+
+function delUpdate(i){
+  updates.splice(i,1);
+  renderUpdates();
+}
+
+function renderUpdates(){
+  var el = document.getElementById('updatesList');
+  if(!updates.length){
+    el.innerHTML = '<div class="empty-msg">No updates yet.<br>Tap "+ Add Update" when the situation changes.</div>';
+    return;
+  }
+  el.innerHTML = updates.map(function(u,i){
+    return '<div class="update-card">' +
+      '<div class="update-card-head">' +
+        '<span class="update-no">Update #' + (i+1) + '</span>' +
+        '<button class="del-btn" onclick="delUpdate(' + i + ')">&#xD7;</button>' +
+      '</div>' +
+      '<input class="update-time" type="time" value="' + u.time + '" onchange="updates[' + i + '].time=this.value" placeholder="Time">' +
+      '<input class="update-status" type="text" value="' + esc(u.status) + '" onchange="updates[' + i + '].status=this.value" placeholder="Current status (e.g. Scene secured, 1 lane open)">' +
+      
+    '</div>';
+  }).join('');
+}
+
+function genUpdate(){
+  if(!updates.length){ toast('No updates added yet'); return; }
+  var u = updates[updates.length-1];
+  var no = updates.length;
+  var msg = buildMsg([
+    '\uD83D\uDCCB *INCIDENT UPDATE #' + no + ' \u2014 ' + window._incNo + '*',
+    '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
+    v('location') ? '\uD83D\uDCCD *Location:* ' + v('location') : null,
+    u.time ? '\uD83D\uDD50 *Time:* ' + u.time : null,
+    u.status ? '\uD83D\uDCCC *Status:* ' + u.status : null,
+
+    '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
+    '\uD83D\uDCCB Updated by: ' + (v('reporter') || '\u2014'),
+  ]);
+  showOutput('out1', msg, false);
+}
+
+/* ── CLOSURE ─────────────────────────────────────────────────────────────── */
+function genClosure(){
+  var dur = calcDur();
+  var msg = buildMsg([
+    '\u2705 *INCIDENT CLOSED \u2014 ' + window._incNo + '*',
+    '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
+    v('location') ? '\uD83D\uDCCD *Location:* ' + v('location') : null,
+    v('cl_time') ? '\uD83D\uDD50 *Scene cleared:* ' + v('cl_time') : null,
+    dur ? '\u23F1\uFE0F *Total duration:* ' + dur : null,
+    clVal ? '\uD83D\uDEA7 *Road status:* ' + clVal : null,
+    v('cl_case') ? '\uD83D\uDE94 *SAPS case no:* ' + v('cl_case') : null,
+    v('cl_hosp') ? '\uD83C\uDFE5 *Persons transported:* ' + v('cl_hosp') : null,
+    v('cl_photos') ? '\uD83D\uDCF8 *Photos:* ' + v('cl_photos') : null,
+    v('cl_notes') ? '\uD83D\uDCDD *Notes:* ' + v('cl_notes') : null,
+    '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
+    '\u270D\uFE0F Closed by: ' + (v('cl_by') || v('reporter') || '\u2014'),
+  ]);
+  showOutput('out2', msg, true);
+}
+
+/* ── CONTACTS ────────────────────────────────────────────────────────────── */
+function addContact(){
+  var name = prompt('Name / role (e.g. RRM Supervisor):');
+  if(!name || !name.trim()) return;
+  var num = prompt('Phone number:');
+  if(!num || !num.trim()) return;
+  customContacts.push({ name: name.trim(), num: num.trim() });
+  renderCustomContacts();
+}
+
+function delContact(i){
+  customContacts.splice(i,1);
+  renderCustomContacts();
+}
+
+function renderCustomContacts(){
+  var el = document.getElementById('customContacts');
+  if(!customContacts.length){ el.innerHTML=''; return; }
+  el.innerHTML = '<div class="contacts-card">' +
+    customContacts.map(function(c,i){
+      return '<div class="contact-row">' +
+        '<div><div class="contact-name">' + esc(c.name) + '</div></div>' +
+        '<div style="display:flex;gap:8px;align-items:center">' +
+          '<a class="call-btn" href="tel:' + c.num.replace(/\s/g,'') + '">' + esc(c.num) + '</a>' +
+          '<button class="del-btn" onclick="delContact(' + i + ')" style="flex-shrink:0">&#xD7;</button>' +
+        '</div>' +
+      '</div>';
+    }).join('') +
+  '</div>';
+}
+
+/* ── OUTPUT + COPY ───────────────────────────────────────────────────────── */
+function showOutput(id, msg, isGreen){
+  var el = document.getElementById(id);
+  el._msg = msg;
+  el.innerHTML =
+    '<div class="msg-box' + (isGreen?' green-border':'') + '">' + htmlEsc(msg) + '</div>' +
+    '<button class="btn-copy" onclick="copyMsg(\'' + id + '\',this)">&#x1F4CB; Copy — Paste into WhatsApp</button>';
+  setTimeout(function(){ el.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 80);
+}
+
+function copyMsg(id, btn){
+  var el = document.getElementById(id);
+  var txt = el._msg;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){
+      btn.textContent = '\u2705 Copied!';
+      setTimeout(function(){ btn.innerHTML='&#x1F4CB; Copy \u2014 Paste into WhatsApp'; }, 2200);
+    }).catch(function(){ fallbackCopy(txt, btn); });
+  } else {
+    fallbackCopy(txt, btn);
+  }
+}
+
+function fallbackCopy(txt, btn){
+  var ta = document.createElement('textarea');
+  ta.value = txt;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); } catch(e){}
+  document.body.removeChild(ta);
+  btn.textContent = '\u2705 Copied!';
+  setTimeout(function(){ btn.innerHTML='&#x1F4CB; Copy \u2014 Paste into WhatsApp'; }, 2200);
+}
+
+/* ── UTILS ───────────────────────────────────────────────────────────────── */
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function htmlEsc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function toast(msg){
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, 2200);
+}
+</script>
+</body>
+</html>
